@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Zeus: Metropolis Run - Double Trouble</title>
+    <style>
+        :root {
+            --zeus-skin: #f1c40f;
+            --toga: #ffffff;
+            --blood-moon: radial-gradient(circle at 35% 35%, #fffa81 0%, #ff5e00 45%, #8b0000 100%);
+        }
+        * { box-sizing: border-box; touch-action: manipulation; font-family: 'Arial', sans-serif; }
+        body { margin: 0; padding: 0; background: #010103; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+
+        /* LOGIN SCREEN */
+        #login-overlay {
+            position: fixed; inset: 0; background: linear-gradient(135deg, #050510, #1a0a2a);
+            z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center; color: white;
+        }
+        .login-box { background: rgba(255,255,255,0.05); padding: 35px; border-radius: 20px; border: 1px solid var(--zeus-skin); text-align: center; box-shadow: 0 0 30px rgba(0,0,0,0.5); }
+        input { display: block; width: 280px; padding: 12px; margin: 12px 0; border-radius: 8px; border: none; background: #111; color: white; outline: none; }
+        button { width: 100%; padding: 12px; background: var(--zeus-skin); border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+
+        /* GAME STAGE */
+        .game-area { width: 100%; max-width: 800px; height: 100%; max-height: 500px; position: relative; overflow: hidden; display: none; background: #02020a; border-bottom: 25px solid #111; }
+        .moon { position: absolute; top: 90px; left: 50%; transform: translateX(-50%); width: 220px; height: 220px; background: var(--blood-moon); border-radius: 50%; z-index: 1; opacity: 0.7; }
+        .city-scroll { position: absolute; bottom: 0; width: 200%; height: 380px; display: flex; align-items: flex-end; z-index: 5; animation: cityMove 12s linear infinite; }
+        .building { width: 110px; background: #030305; margin-right: 5px; position: relative; flex-shrink: 0; border-top: 3px solid #141424; }
+
+        /* CHARACTER */
+        #zeus { width: 60px; height: 90px; position: absolute; bottom: 0; left: 80px; z-index: 10; }
+        .head { width: 22px; height: 22px; background: var(--zeus-skin); border-radius: 50%; position: absolute; top: 0; left: 18px; box-shadow: 0 0 15px var(--zeus-skin); }
+        .torso { width: 22px; height: 38px; background: var(--toga); position: absolute; top: 22px; left: 18px; border-radius: 5px; }
+        .leg { width: 9px; height: 32px; background: var(--zeus-skin); position: absolute; bottom: 0; transform-origin: top center; border-radius: 5px; }
+        .leg.front { left: 22px; animation: run 0.35s infinite alternate; }
+        .leg.back { left: 22px; opacity: 0.7; animation: run 0.35s infinite alternate-reverse; }
+
+        @keyframes run { from { transform: rotate(-45deg); } to { transform: rotate(45deg); } }
+        @keyframes cityMove { from { left: 0; } to { left: -100%; } }
+
+        /* OBSTACLE */
+        .bolt { width: 45px; height: 45px; background: radial-gradient(circle, #fff, #00d4ff, transparent); border-radius: 50%; position: absolute; bottom: 15px; box-shadow: 0 0 25px #00d4ff; z-index: 15; }
+        #score-board { position: absolute; top: 20px; width: 100%; display: flex; justify-content: space-between; padding: 0 30px; color: #ffcc00; font-weight: bold; z-index: 100; font-size: 24px; text-shadow: 2px 2px 5px black; }
+
+        /* MODAL */
+        #game-over-modal { position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 2000; display: none; flex-direction: column; justify-content: center; align-items: center; color: white; }
+        .modal-content { background: #1a1a2e; padding: 40px; border-radius: 20px; border: 2px solid var(--zeus-skin); text-align: center; }
+        .btn-telegram { display: inline-block; margin-top: 20px; padding: 15px 35px; background: #0088cc; color: white; text-decoration: none; border-radius: 10px; font-weight: bold; }
+
+        .jumping { animation: jumpAnim 0.65s cubic-bezier(0.21, 0.61, 0.35, 1); }
+        @keyframes jumpAnim { 0%, 100% { bottom: 0; } 50% { bottom: 200px; } }
+    </style>
+</head>
+<body onkeydown="if(event.code==='Space') jump()">
+
+    <div id="login-overlay">
+        <div class="login-box">
+            <h2 style="color: var(--zeus-skin)">Run&Jump</h2>
+            <input type="text" id="inputNama" placeholder="Nama Lengkap">
+            <input type="text" id="inputTiket" placeholder="Kode Tiket">
+            <button onclick="startLogin()">MAIN SEKARANG</button>
+            <p id="msg" style="font-size: 14px; margin-top: 10px;"></p>
+        </div>
+    </div>
+
+    <div class="game-area" id="stage">
+        <div id="score-board">
+            <div id="lvl">LVL 1</div>
+            <div id="score">0</div>
+        </div>
+        <div class="moon"></div>
+        <div class="city-scroll" id="city"></div>
+        <div id="zeus">
+            <div class="leg back"></div>
+            <div class="torso"></div>
+            <div class="head"></div>
+            <div class="leg front"></div>
+        </div>
+        <div id="obs-layer"></div>
+    </div>
+
+    <div id="game-over-modal">
+        <div class="modal-content">
+            <h2>GAME OVER</h2>
+            <p>Skor Akhir:</p>
+            <h1 id="final-score" style="color:var(--zeus-skin); font-size: 60px;">0</h1>
+            <a href="https://t.me/UsernameAnda" class="btn-telegram">KIRIM SKOR KE TELEGRAM</a>
+        </div>
+    </div>
+
+    <script>
+        const scriptURL = 'https://script.google.com/macros/s/AKfycby5O3iNd7SnWJSCpLbmPDU9vrS6-OMZGoyby9PUsqvYfxWpRd1gSUlx-MzSi9JiYNzfBA/exec';
+        let userData = { nama: '', ticket: '', ip: '' };
+        let isGameOver = false, score = 0, speed = 8, level = 1, gameStarted = false;
+
+        fetch('https://api.ipify.org?format=json').then(r => r.json()).then(d => userData.ip = d.ip).catch(() => userData.ip = '0.0.0.0');
+
+        async function startLogin() {
+            const nama = document.getElementById('inputNama').value;
+            const tiket = document.getElementById('inputTiket').value;
+            const msg = document.getElementById('msg');
+            if(!nama || !tiket) return msg.innerText = "Isi data!";
+            
+            msg.innerText = "Mengecek akses...";
+            try {
+                const r = await fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "validate", ticket: tiket, ip: userData.ip }) });
+                const res = await r.json();
+                if(res.status === "success") {
+                    userData.nama = nama; userData.ticket = tiket;
+                    document.getElementById('login-overlay').style.display = 'none';
+                    document.getElementById('stage').style.display = 'block';
+                    setTimeout(() => { gameStarted = true; initGame(); }, 2000); 
+                } else { msg.innerText = res.msg; msg.style.color = "red"; }
+            } catch(e) { msg.innerText = "Database Error!"; }
+        }
+
+        function initGame() {
+            const city = document.getElementById('city');
+            for(let i=0; i<30; i++) {
+                const b = document.createElement('div');
+                b.className = 'building';
+                b.style.height = (Math.random() * 150 + 200) + "px";
+                city.appendChild(b);
+            }
+            spawn();
+            setInterval(() => {
+                if(isGameOver || !gameStarted) return;
+                score++;
+                document.getElementById('score').innerText = score;
+                if(score % 500 === 0) { level++; speed += 1.2; document.getElementById('lvl').innerText = "LVL " + level; }
+            }, 100);
+        }
+
+        function jump() {
+            const z = document.getElementById('zeus');
+            if(isGameOver || !gameStarted) return;
+            if(!z.classList.contains('jumping')) {
+                z.classList.add('jumping');
+                setTimeout(() => z.classList.remove('jumping'), 650);
+            }
+        }
+
+        // FUNGSI SPAWN BARU DENGAN LOGIKA BOLA GANDA
+        function createObstacle(offset = 0) {
+            const b = document.createElement('div');
+            b.className = 'bolt'; 
+            b.style.right = (-150 - offset) + "px"; 
+            document.getElementById('obs-layer').appendChild(b);
+            
+            let p = -150 - offset;
+            let move = setInterval(() => {
+                if(isGameOver) return clearInterval(move);
+                p += speed; 
+                b.style.right = p + "px";
+
+                let zR = document.getElementById('zeus').getBoundingClientRect();
+                let bR = b.getBoundingClientRect();
+
+                // Deteksi Tabrakan
+                if(zR.right > bR.left+15 && zR.left < bR.right-15 && zR.bottom > bR.top+15) {
+                    endGame();
+                }
+                if(p > 1100) { clearInterval(move); b.remove(); }
+            }, 10);
+        }
+
+        function spawn() {
+            if(isGameOver || !gameStarted) return;
+
+            // Logika: 30% peluang muncul 2 bola berdempetan
+            if (Math.random() < 0.3) {
+                createObstacle(0);      // Bola pertama
+                createObstacle(60);     // Bola kedua (berdempetan di belakangnya)
+            } else {
+                createObstacle(0);      // Muncul 1 bola saja
+            }
+
+            // Waktu spawn berikutnya
+            let nextSpawn = Math.max(Math.random() * 1500 + 1000 - (level * 100), 900);
+            setTimeout(spawn, nextSpawn);
+        }
+
+        function endGame() {
+            isGameOver = true;
+            document.getElementById('final-score').innerText = score;
+            document.getElementById('game-over-modal').style.display = 'flex';
+            fetch(scriptURL, {
+                method: 'POST',
+                body: JSON.stringify({ action: "save", nama: userData.nama, ticket: userData.ticket, score: score, ip: userData.ip, time: new Date().toLocaleString() })
+            });
+        }
+
+        document.getElementById('stage').addEventListener('mousedown', jump);
+        document.getElementById('stage').addEventListener('touchstart', jump);
+    </script>
+</body>
+</html>
