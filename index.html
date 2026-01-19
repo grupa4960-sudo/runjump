@@ -3,32 +3,54 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Zeus Metropolis - Final Version</title>
+    <title>Zeus Metropolis - Anime Lightning Edition</title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@700&display=swap" rel="stylesheet">
     <style>
-        :root { --gold: #f1c40f; --neon: #00d4ff; --dark: #02020a; }
+        :root { --gold: #f1c40f; --neon: #00d4ff; --dark: #02020a; --lightning: rgba(255, 255, 255, 0.8); }
         * { box-sizing: border-box; font-family: 'Rajdhani', sans-serif; }
         body { margin: 0; background: var(--dark); color: white; height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; }
 
         /* UI TOP */
-        #top-ui { position: fixed; top: 15px; right: 15px; background: rgba(0,0,0,0.85); padding: 10px 20px; border: 1px solid var(--gold); border-radius: 12px; z-index: 1000; text-align: center; }
+        #top-ui { position: fixed; top: 15px; right: 15px; background: rgba(0,0,0,0.85); padding: 10px 20px; border: 1px solid var(--gold); border-radius: 12px; z-index: 1000; text-align: center; box-shadow: 0 0 15px rgba(241,196,15,0.3); }
         #timer { font-size: 22px; color: #ff3366; font-weight: bold; }
-        #play-timer-display { position: fixed; top: 15px; left: 15px; background: rgba(255,0,0,0.6); padding: 10px; border-radius: 8px; display: none; z-index: 1000; border: 1px solid white; }
+        #play-timer-display { position: fixed; top: 15px; left: 15px; background: rgba(255,0,0,0.6); padding: 10px; border-radius: 8px; display: none; z-index: 1000; border: 1px solid white; animation: pulse 1s infinite; }
 
-        /* LEADERBOARD */
+        /* LEADERBOARD ANIMASI PETIR & ANIME */
         #leaderboard-screen { 
             position: fixed; inset: 0; z-index: 9999; display: none; flex-direction: column; justify-content: center; align-items: center;
-            background: rgba(0,0,0,0.95);
+            background: radial-gradient(circle, #0a0a20 0%, #02020a 100%);
+            transition: background 0.1s;
         }
-        .board-box { background: #0a0a10; padding: 30px; border-radius: 20px; border: 2px solid var(--gold); width: 90%; max-width: 400px; text-align: center; }
-        .row { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid #222; }
+
+        /* Efek Kilat Layar */
+        .flash { background: var(--lightning) !important; }
+
+        /* Partikel Anime */
+        .anime-bg { position: absolute; inset: 0; pointer-events: none; overflow: hidden; z-index: -1; }
+        .particle { position: absolute; background: white; border-radius: 50%; opacity: 0.3; animation: float 5s linear infinite; }
+
+        .board-box { 
+            background: rgba(10, 10, 16, 0.9); padding: 30px; border-radius: 20px; border: 2px solid var(--gold); 
+            width: 90%; max-width: 400px; text-align: center; 
+            box-shadow: 0 0 50px rgba(241,196,15,0.2), inset 0 0 20px rgba(0,212,255,0.1);
+            position: relative; overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .board-box::before {
+            content: ""; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(0,212,255,0.1), transparent);
+            animation: anime-sweep 4s linear infinite;
+        }
+
+        .row { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #222; position: relative; z-index: 1; }
+        .row:hover { background: rgba(0,212,255,0.1); border-color: var(--neon); }
 
         /* ARENA & VISUALS */
         .stage { width: 100%; max-width: 800px; height: 500px; position: relative; display: none; background: #010105; border-bottom: 25px solid #111; overflow: hidden; }
         .moon { position: absolute; top: 40px; left: 50%; transform: translateX(-50%); width: 160px; height: 160px; border-radius: 50%; background: radial-gradient(circle, #ffcc00, #ff5e00, #8b0000); box-shadow: 0 0 60px rgba(255, 94, 0, 0.4); }
         .city { position: absolute; bottom: 0; width: 200%; height: 350px; display: flex; align-items: flex-end; animation: moveCity 18s linear infinite; }
         .building { width: 70px; background: #030308; margin-right: 5px; flex-shrink: 0; position: relative; border-top: 2px solid #1a1a2e; }
-        .win { position: absolute; width: 4px; height: 6px; background: #f1c40f; opacity: 0.3; }
 
         /* ZEUS */
         #zeus { width: 45px; height: 75px; position: absolute; bottom: 0; left: 80px; z-index: 10; }
@@ -41,13 +63,18 @@
         .bolt { width: 35px; height: 35px; background: var(--neon); position: absolute; bottom: 10px; border-radius: 50%; box-shadow: 0 0 20px var(--neon); z-index: 15; }
 
         /* LOGIN */
-        #login-overlay { text-align: center; z-index: 500; background: rgba(0,0,0,0.9); padding: 40px; border-radius: 20px; border: 1px solid var(--gold); }
+        #login-overlay { text-align: center; z-index: 500; background: rgba(0,0,0,0.9); padding: 40px; border-radius: 20px; border: 1px solid var(--gold); box-shadow: 0 0 30px rgba(241,196,15,0.4); }
         input, button { display: block; width: 280px; padding: 15px; margin: 10px auto; border-radius: 8px; font-weight: bold; border: none; }
-        button { background: var(--gold); cursor: pointer; text-transform: uppercase; }
+        input { background: #111; color: white; border: 1px solid #333; }
+        button { background: var(--gold); cursor: pointer; text-transform: uppercase; box-shadow: 0 0 15px var(--gold); }
 
+        /* KEYFRAMES */
         @keyframes run { from { transform: rotate(-35deg); } to { transform: rotate(35deg); } }
         @keyframes moveCity { from { left: 0; } to { left: -100%; } }
         @keyframes jump { 0%, 100% { bottom: 0; } 50% { bottom: 200px; } }
+        @keyframes anime-sweep { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes float { from { transform: translateY(100vh); } to { transform: translateY(-10vh); } }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
         .jumping { animation: jump 0.6s cubic-bezier(0.2, 0.8, 0.2, 1); }
     </style>
 </head>
@@ -61,19 +88,20 @@
     <div id="play-timer-display">SISA MAIN: <span id="pt-val">30:00</span></div>
 
     <div id="leaderboard-screen">
+        <div class="anime-bg" id="anime-particles"></div>
         <div class="board-box">
-            <h2 style="color:var(--gold)">SESSION RANKINGS</h2>
+            <h2 style="color:var(--gold); text-shadow: 0 0 10px var(--gold); margin:0;">STORM RANKINGS</h2>
             <div id="leader-list" style="margin:20px 0; text-align:left;"></div>
-            <p>Next Session In:</p>
-            <div id="timer-wait" style="font-size: 30px; font-weight: bold;">00:00</div>
+            <p style="color: var(--neon); font-size: 14px;">GATE OPENS IN:</p>
+            <div id="timer-wait" style="font-size: 35px; font-weight: bold; color: white; text-shadow: 0 0 15px var(--neon);">00:00</div>
         </div>
     </div>
 
     <div id="login-overlay">
-        <h1 style="color:var(--gold)">ZEUS METROPOLIS</h1>
+        <h1 style="color:var(--gold); text-shadow: 0 0 15px var(--gold);">ZEUS METROPOLIS</h1>
         <input type="text" id="name" placeholder="NAMA PLAYER">
         <input type="text" id="ticket" placeholder="KODE TIKET">
-        <button onclick="auth()">START GAME</button>
+        <button onclick="auth()">ENTER THE STORM</button>
         <p id="msg" style="color:#ff3366"></p>
     </div>
 
@@ -83,14 +111,48 @@
         <div id="zeus">
             <div class="head"></div><div class="body"></div><div class="leg l"></div><div class="leg r"></div>
         </div>
-        <div id="score-box" style="position:absolute; top:20px; left:20px; font-size:40px; color:var(--gold); z-index:100;">0</div>
+        <div id="score-box" style="position:absolute; top:20px; left:20px; font-size:40px; color:var(--gold); z-index:100; text-shadow: 0 0 10px black;">0</div>
     </div>
 
     <script>
         const scriptURL = 'https://script.google.com/macros/s/AKfycbxTzwp1iBXiWiuCigxuyYZPMZiOpVeVtmCWmTVFnZDvXQLjkvBMBXelGSqfPIFjOHw0JA/exec'; 
         let player = { name: '', ticket: '', ip: 'Unknown' };
         let isLive = false, currentScore = 0, jumping = false;
-        let playLimit = 30 * 60; // 30 Menit dalam detik
+        let playLimit = 30 * 60;
+
+        // --- ANIMASI PARTIKEL ANIME ---
+        function createParticles() {
+            const container = document.getElementById('anime-particles');
+            for(let i=0; i<30; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.style.width = Math.random() * 3 + 'px';
+                p.style.height = p.style.width;
+                p.style.left = Math.random() * 100 + 'vw';
+                p.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                p.style.animationDelay = Math.random() * 5 + 's';
+                container.appendChild(p);
+            }
+        }
+        createParticles();
+
+        // --- EFEK KILATAN PETIR ---
+        function triggerLightning() {
+            if (document.getElementById('leaderboard-screen').style.display === 'flex') {
+                const screen = document.getElementById('leaderboard-screen');
+                setTimeout(() => {
+                    screen.classList.add('flash');
+                    setTimeout(() => screen.classList.remove('flash'), 50);
+                    // Double strike ala anime
+                    setTimeout(() => {
+                        screen.classList.add('flash');
+                        setTimeout(() => screen.classList.remove('flash'), 30);
+                    }, 100);
+                }, Math.random() * 5000 + 2000);
+            }
+            setTimeout(triggerLightning, 3000);
+        }
+        triggerLightning();
 
         async function fetchIP() {
             try {
@@ -105,6 +167,7 @@
             const now = new Date();
             const m = now.getMinutes();
             const s = now.getSeconds();
+            // Setiap 1 menit: 00-59 (Buka), Menit berikutnya (Tutup)
             const isWebOpen = Math.floor(m / 1) % 2 === 0;
 
             if (!isWebOpen) {
@@ -137,7 +200,7 @@
             const n = document.getElementById('name').value;
             const t = document.getElementById('ticket').value;
             if(!n || !t) return;
-            document.getElementById('msg').innerText = "Validating...";
+            document.getElementById('msg').innerText = "POWERING UP...";
             await fetchIP();
 
             const r = await fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "validate", ticket: t }) });
@@ -154,7 +217,6 @@
             } else { document.getElementById('msg').innerText = res.msg; }
         }
 
-        // --- LOGIKA 30 MENIT BERMAIN ---
         function startPlayTimer() {
             let pInterval = setInterval(() => {
                 if (!isLive) return clearInterval(pInterval);
@@ -162,18 +224,14 @@
                 let m = Math.floor(playLimit / 60);
                 let s = playLimit % 60;
                 document.getElementById('pt-val').innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
-                
-                if (playLimit <= 0) {
-                    clearInterval(pInterval);
-                    stopGame("WAKTU BERMAIN HABIS!");
-                }
+                if (playLimit <= 0) { clearInterval(pInterval); stopGame("TIME EXPIRED!"); }
             }, 1000);
         }
 
         function stopGame(msg) {
             isLive = false;
             fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "save", nama: player.name, ticket: player.ticket, score: currentScore, ip: player.ip }) });
-            alert(msg || "Game Over! Skor: " + currentScore);
+            alert(msg || "STORM CLEARED! SCORE: " + currentScore);
             location.reload();
         }
 
@@ -206,8 +264,8 @@
             const res = await r.json();
             if(res.status === "success") {
                 let h = "";
-                res.data.forEach((d, i) => { h += `<div class="row"><span>${i+1}. ${d.nama}</span><b>${d.skor}</b></div>`; });
-                document.getElementById('leader-list').innerHTML = h || "Belum ada skor sesi ini.";
+                res.data.forEach((d, i) => { h += `<div class="row"><span>${i+1}. ${d.nama.toUpperCase()}</span><b>${d.skor}</b></div>`; });
+                document.getElementById('leader-list').innerHTML = h || "NO SOULS RECORDED.";
             }
         }
     </script>
