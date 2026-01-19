@@ -3,49 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Zeus Metropolis - Sesi 2 Menit</title>
+    <title>Zeus Metropolis - Final Version</title>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@700&display=swap" rel="stylesheet">
     <style>
         :root { --gold: #f1c40f; --neon: #00d4ff; --dark: #02020a; }
         * { box-sizing: border-box; font-family: 'Rajdhani', sans-serif; }
         body { margin: 0; background: var(--dark); color: white; height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; }
 
-        /* UI HEADER */
-        #top-ui { position: fixed; top: 15px; right: 15px; background: rgba(0,0,0,0.85); padding: 10px 20px; border: 1px solid var(--gold); border-radius: 12px; z-index: 1000; text-align: center; backdrop-filter: blur(5px); }
+        /* UI TOP */
+        #top-ui { position: fixed; top: 15px; right: 15px; background: rgba(0,0,0,0.85); padding: 10px 20px; border: 1px solid var(--gold); border-radius: 12px; z-index: 1000; text-align: center; }
         #timer { font-size: 22px; color: #ff3366; font-weight: bold; }
+        #play-timer-display { position: fixed; top: 15px; left: 15px; background: rgba(255,0,0,0.6); padding: 10px; border-radius: 8px; display: none; z-index: 1000; border: 1px solid white; }
 
-        /* LEADERBOARD SCREEN */
+        /* LEADERBOARD */
         #leaderboard-screen { 
             position: fixed; inset: 0; z-index: 9999; display: none; flex-direction: column; justify-content: center; align-items: center;
-            background: linear-gradient(rgba(0,0,0,0.9), rgba(0,0,0,0.9)), url('https://images.unsplash.com/photo-1578632292335-df3abbb0d586?auto=format&fit=crop&w=1920&q=80');
-            background-size: cover; background-position: center;
+            background: rgba(0,0,0,0.95);
         }
-        .board-box { background: rgba(15, 15, 25, 0.95); padding: 30px; border-radius: 20px; border: 2px solid var(--gold); width: 90%; max-width: 400px; text-align: center; box-shadow: 0 0 30px rgba(241,196,15,0.3); }
-        .row { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #333; font-size: 18px; }
+        .board-box { background: #0a0a10; padding: 30px; border-radius: 20px; border: 2px solid var(--gold); width: 90%; max-width: 400px; text-align: center; }
+        .row { display: flex; justify-content: space-between; padding: 8px; border-bottom: 1px solid #222; }
 
-        /* ARENA & CITY */
+        /* ARENA & VISUALS */
         .stage { width: 100%; max-width: 800px; height: 500px; position: relative; display: none; background: #010105; border-bottom: 25px solid #111; overflow: hidden; }
-        .moon { position: absolute; top: 40px; left: 50%; transform: translateX(-50%); width: 160px; height: 160px; border-radius: 50%; background: radial-gradient(circle, #ffcc00, #ff5e00, #8b0000); box-shadow: 0 0 60px rgba(255, 94, 0, 0.4); z-index: 1; }
-        .city { position: absolute; bottom: 0; width: 200%; height: 350px; display: flex; align-items: flex-end; z-index: 2; animation: moveCity 18s linear infinite; }
+        .moon { position: absolute; top: 40px; left: 50%; transform: translateX(-50%); width: 160px; height: 160px; border-radius: 50%; background: radial-gradient(circle, #ffcc00, #ff5e00, #8b0000); box-shadow: 0 0 60px rgba(255, 94, 0, 0.4); }
+        .city { position: absolute; bottom: 0; width: 200%; height: 350px; display: flex; align-items: flex-end; animation: moveCity 18s linear infinite; }
         .building { width: 70px; background: #030308; margin-right: 5px; flex-shrink: 0; position: relative; border-top: 2px solid #1a1a2e; }
-        .win { position: absolute; width: 4px; height: 6px; background: #f1c40f; opacity: 0.4; }
+        .win { position: absolute; width: 4px; height: 6px; background: #f1c40f; opacity: 0.3; }
 
-        /* ZEUS CHARACTER */
+        /* ZEUS */
         #zeus { width: 45px; height: 75px; position: absolute; bottom: 0; left: 80px; z-index: 10; }
         .head { width: 18px; height: 18px; background: var(--gold); border-radius: 50%; position: absolute; top: 0; left: 13px; box-shadow: 0 0 10px var(--gold); }
         .body { width: 20px; height: 35px; background: #eee; position: absolute; top: 18px; left: 12px; border-radius: 4px; }
         .leg { width: 8px; height: 25px; background: var(--gold); position: absolute; bottom: 0; transform-origin: top; animation: run 0.4s infinite alternate; }
         .leg.l { left: 12px; } .leg.r { left: 24px; animation-delay: 0.2s; }
 
-        /* OBSTACLE */
-        .bolt { width: 35px; height: 35px; background: var(--neon); position: absolute; bottom: 10px; border-radius: 50%; box-shadow: 0 0 20px var(--neon), inset 0 0 10px white; z-index: 15; }
+        /* BOLT */
+        .bolt { width: 35px; height: 35px; background: var(--neon); position: absolute; bottom: 10px; border-radius: 50%; box-shadow: 0 0 20px var(--neon); z-index: 15; }
 
-        /* LOGIN OVERLAY */
-        #login-overlay { text-align: center; z-index: 500; background: rgba(0,0,0,0.85); padding: 40px; border-radius: 20px; border: 1px solid var(--gold); backdrop-filter: blur(10px); }
-        input { display: block; width: 280px; padding: 15px; margin: 10px auto; border-radius: 8px; border: 1px solid #333; background: #111; color: white; text-align: center; }
-        button { display: block; width: 280px; padding: 15px; margin: 10px auto; border-radius: 8px; border: none; background: var(--gold); font-weight: bold; cursor: pointer; text-transform: uppercase; }
+        /* LOGIN */
+        #login-overlay { text-align: center; z-index: 500; background: rgba(0,0,0,0.9); padding: 40px; border-radius: 20px; border: 1px solid var(--gold); }
+        input, button { display: block; width: 280px; padding: 15px; margin: 10px auto; border-radius: 8px; font-weight: bold; border: none; }
+        button { background: var(--gold); cursor: pointer; text-transform: uppercase; }
 
-        /* ANIMATIONS */
         @keyframes run { from { transform: rotate(-35deg); } to { transform: rotate(35deg); } }
         @keyframes moveCity { from { left: 0; } to { left: -100%; } }
         @keyframes jump { 0%, 100% { bottom: 0; } 50% { bottom: 200px; } }
@@ -55,25 +54,27 @@
 <body>
 
     <div id="top-ui">
-        <div id="status-label" style="font-size: 10px;">SESSION TIMER</div>
+        <div style="font-size: 10px;">WEB SESSION</div>
         <div id="timer">00:00</div>
     </div>
 
+    <div id="play-timer-display">SISA MAIN: <span id="pt-val">30:00</span></div>
+
     <div id="leaderboard-screen">
         <div class="board-box">
-            <h2 style="color:var(--gold); margin:0;">SESSION CHAMPIONS</h2>
-            <div id="leader-list" style="margin:20px 0; max-height:250px; overflow-y:auto;"></div>
-            <p style="font-size: 14px;">Next Session In:</p>
-            <div id="timer-wait" style="font-size: 35px; font-weight: bold;">00:00</div>
+            <h2 style="color:var(--gold)">SESSION RANKINGS</h2>
+            <div id="leader-list" style="margin:20px 0; text-align:left;"></div>
+            <p>Next Session In:</p>
+            <div id="timer-wait" style="font-size: 30px; font-weight: bold;">00:00</div>
         </div>
     </div>
 
     <div id="login-overlay">
-        <h1 style="color:var(--gold); margin-top:0; letter-spacing: 3px;">ZEUS METROPOLIS</h1>
+        <h1 style="color:var(--gold)">ZEUS METROPOLIS</h1>
         <input type="text" id="name" placeholder="NAMA PLAYER">
         <input type="text" id="ticket" placeholder="KODE TIKET">
-        <button onclick="auth()">MASUK ARENA</button>
-        <p id="msg" style="color:#ff3366; font-size: 14px;"></p>
+        <button onclick="auth()">START GAME</button>
+        <p id="msg" style="color:#ff3366"></p>
     </div>
 
     <div class="stage" id="arena" onclick="doJump()">
@@ -82,85 +83,98 @@
         <div id="zeus">
             <div class="head"></div><div class="body"></div><div class="leg l"></div><div class="leg r"></div>
         </div>
-        <div id="score-box" style="position:absolute; top:20px; left:20px; font-size:40px; color:var(--gold); z-index:100; text-shadow: 0 0 10px rgba(0,0,0,0.5);">0</div>
+        <div id="score-box" style="position:absolute; top:20px; left:20px; font-size:40px; color:var(--gold); z-index:100;">0</div>
     </div>
 
     <script>
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbyT21qMxT_EWEKwIXv3gWIjbsbrs6OwMcLycLtJb5VrUsdOmL5fVgJniyh6tErTBlHGNA/exec'; 
-        let player = { name: '', ticket: '', ip: 'Mencari...' };
-        let currentScore = 0, isLive = false, jumping = false;
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbxTzwp1iBXiWiuCigxuyYZPMZiOpVeVtmCWmTVFnZDvXQLjkvBMBXelGSqfPIFjOHw0JA/exec'; 
+        let player = { name: '', ticket: '', ip: 'Unknown' };
+        let isLive = false, currentScore = 0, jumping = false;
+        let playLimit = 30 * 60; // 30 Menit dalam detik
 
-        // --- AMBIL IP USER ---
         async function fetchIP() {
             try {
                 const res = await fetch('https://api.ipify.org?format=json');
                 const data = await res.json();
                 player.ip = data.ip;
-            } catch (e) { player.ip = "Unknown"; }
+            } catch (e) { player.ip = "Hidden"; }
         }
         fetchIP();
 
-        // --- LOGIKA SIKLUS 2 MENIT ---
         function cycleManager() {
             const now = new Date();
             const m = now.getMinutes();
             const s = now.getSeconds();
-
-            const isWebOpen = Math.floor(m / 2) % 2 === 0;
+            const isWebOpen = Math.floor(m / 1) % 2 === 0;
 
             if (!isWebOpen) {
                 document.getElementById('leaderboard-screen').style.display = 'flex';
-                document.getElementById('status-label').innerText = "SESSION ENDED";
                 if(document.getElementById('leader-list').innerHTML === "") getLeaders();
             } else {
                 document.getElementById('leaderboard-screen').style.display = 'none';
-                document.getElementById('status-label').innerText = "SESSION ACTIVE";
                 document.getElementById('leader-list').innerHTML = ""; 
             }
 
-            let sisaMenit = 1 - (m % 2);
-            let sisaDetik = 59 - s;
-            const timeStr = `${String(sisaMenit).padStart(2,'0')}:${String(sisaDetik).padStart(2,'0')}`;
+            let sM = 0 - (m % 1);
+            let sS = 59 - s;
+            const timeStr = `${String(sM).padStart(2,'0')}:${String(sS).padStart(2,'0')}`;
             document.getElementById('timer').innerText = timeStr;
             document.getElementById('timer-wait').innerText = timeStr;
         }
         setInterval(cycleManager, 1000);
 
-        // --- VISUAL KOTA ---
         function initCity() {
             const layer = document.getElementById('city-layer');
             for(let i=0; i<40; i++) {
                 const b = document.createElement('div'); b.className = 'building';
                 b.style.height = (Math.random() * 150 + 150) + 'px';
-                for(let j=0; j<5; j++) {
-                    const w = document.createElement('div'); w.className = 'win';
-                    w.style.top = (j * 30 + 20) + 'px'; w.style.left = (Math.random() * 40 + 5) + 'px';
-                    if(Math.random() > 0.4) b.appendChild(w);
-                }
                 layer.appendChild(b);
             }
         }
         initCity();
 
-        // --- GAMEPLAY FUNCTIONS ---
         async function auth() {
             const n = document.getElementById('name').value;
             const t = document.getElementById('ticket').value;
             if(!n || !t) return;
-            document.getElementById('msg').innerText = "VALIDATING...";
+            document.getElementById('msg').innerText = "Validating...";
             await fetchIP();
 
-            try {
-                const r = await fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "validate", ticket: t }) });
-                const res = await r.json();
-                if(res.status === "success") {
-                    player.name = n; player.ticket = t;
-                    document.getElementById('login-overlay').style.display = 'none';
-                    document.getElementById('arena').style.display = 'block';
-                    isLive = true; spawnObs();
-                    setInterval(() => { if(isLive) { currentScore++; document.getElementById('score-box').innerText = currentScore; } }, 100);
-                } else { document.getElementById('msg').innerText = res.msg; }
-            } catch(e) { document.getElementById('msg').innerText = "SERVER ERROR"; }
+            const r = await fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "validate", ticket: t }) });
+            const res = await r.json();
+            if(res.status === "success") {
+                player.name = n; player.ticket = t;
+                document.getElementById('login-overlay').style.display = 'none';
+                document.getElementById('arena').style.display = 'block';
+                document.getElementById('play-timer-display').style.display = 'block';
+                isLive = true;
+                startPlayTimer();
+                spawnObs();
+                setInterval(() => { if(isLive) { currentScore++; document.getElementById('score-box').innerText = currentScore; } }, 100);
+            } else { document.getElementById('msg').innerText = res.msg; }
+        }
+
+        // --- LOGIKA 30 MENIT BERMAIN ---
+        function startPlayTimer() {
+            let pInterval = setInterval(() => {
+                if (!isLive) return clearInterval(pInterval);
+                playLimit--;
+                let m = Math.floor(playLimit / 60);
+                let s = playLimit % 60;
+                document.getElementById('pt-val').innerText = `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+                
+                if (playLimit <= 0) {
+                    clearInterval(pInterval);
+                    stopGame("WAKTU BERMAIN HABIS!");
+                }
+            }, 1000);
+        }
+
+        function stopGame(msg) {
+            isLive = false;
+            fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "save", nama: player.name, ticket: player.ticket, score: currentScore, ip: player.ip }) });
+            alert(msg || "Game Over! Skor: " + currentScore);
+            location.reload();
         }
 
         function doJump() {
@@ -180,10 +194,7 @@
                 let z = document.getElementById('zeus').getBoundingClientRect();
                 let o = b.getBoundingClientRect();
                 if(z.right > o.left+15 && z.left < o.right-15 && z.bottom > o.top+15) {
-                    isLive = false;
-                    fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "save", nama: player.name, ticket: player.ticket, score: currentScore, ip: player.ip }) });
-                    alert("GAME OVER! SCORE: " + currentScore);
-                    location.reload();
+                    clearInterval(move); stopGame();
                 }
                 if(p > 1000) { clearInterval(move); b.remove(); }
             }, 20);
@@ -191,15 +202,13 @@
         }
 
         async function getLeaders() {
-            try {
-                const r = await fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "getLeaderboard" }) });
-                const res = await r.json();
-                if(res.status === "success") {
-                    let h = "";
-                    res.data.forEach((d, i) => { h += `<div class="row"><span>${i+1}. ${d.nama}</span><b>${d.skor}</b></div>`; });
-                    document.getElementById('leader-list').innerHTML = h || "No data for this session.";
-                }
-            } catch(e) { console.error("Leaderboard error"); }
+            const r = await fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "getLeaderboard" }) });
+            const res = await r.json();
+            if(res.status === "success") {
+                let h = "";
+                res.data.forEach((d, i) => { h += `<div class="row"><span>${i+1}. ${d.nama}</span><b>${d.skor}</b></div>`; });
+                document.getElementById('leader-list').innerHTML = h || "Belum ada skor sesi ini.";
+            }
         }
     </script>
 </body>
