@@ -3,145 +3,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Zeus Metropolis - Final Edition</title>
+    <title>Zeus Metropolis - Sesi 2 Menit</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@700&display=swap" rel="stylesheet">
     <style>
         :root { --gold: #f1c40f; --neon: #00d4ff; --dark: #02020a; }
         * { box-sizing: border-box; font-family: 'Rajdhani', sans-serif; }
         body { margin: 0; background: var(--dark); color: white; height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; }
 
-        /* HEADER UI */
+        /* UI HEADER */
         #top-ui { position: fixed; top: 15px; right: 15px; background: rgba(0,0,0,0.85); padding: 10px 20px; border: 1px solid var(--gold); border-radius: 12px; z-index: 1000; text-align: center; backdrop-filter: blur(5px); }
-        #timer { font-size: 22px; color: #ff3366; font-weight: bold; text-shadow: 0 0 10px rgba(255,51,102,0.5); }
+        #timer { font-size: 22px; color: #ff3366; font-weight: bold; }
 
-        /* LEADERBOARD (TAMPIL SAAT JAM GANJIL) */
+        /* LEADERBOARD SCREEN */
         #leaderboard-screen { 
             position: fixed; inset: 0; z-index: 9999; display: none; flex-direction: column; justify-content: center; align-items: center;
-            background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), url('https://images.unsplash.com/photo-1578632292335-df3abbb0d586?auto=format&fit=crop&w=1920&q=80');
+            background: linear-gradient(rgba(0,0,0,0.9), rgba(0,0,0,0.9)), url('https://images.unsplash.com/photo-1578632292335-df3abbb0d586?auto=format&fit=crop&w=1920&q=80');
             background-size: cover; background-position: center;
         }
-        .board-box { background: rgba(10, 10, 20, 0.95); padding: 30px; border-radius: 20px; border: 2px solid var(--gold); width: 90%; max-width: 450px; text-align: center; box-shadow: 0 0 30px rgba(241,196,15,0.2); }
+        .board-box { background: rgba(15, 15, 25, 0.95); padding: 30px; border-radius: 20px; border: 2px solid var(--gold); width: 90%; max-width: 400px; text-align: center; box-shadow: 0 0 30px rgba(241,196,15,0.3); }
+        .row { display: flex; justify-content: space-between; padding: 10px; border-bottom: 1px solid #333; font-size: 18px; }
 
         /* ARENA & CITY */
-        .stage { width: 100%; max-width: 800px; height: 500px; position: relative; display: none; background: #010105; border-bottom: 25px solid #111; overflow: hidden; box-shadow: 0 0 50px rgba(0,0,0,1); }
-        .moon { position: absolute; top: 40px; left: 50%; transform: translateX(-50%); width: 160px; height: 160px; border-radius: 50%; background: radial-gradient(circle, #ffcc00 0%, #ff5e00 60%, #8b0000 100%); box-shadow: 0 0 60px rgba(255, 94, 0, 0.4); z-index: 1; }
+        .stage { width: 100%; max-width: 800px; height: 500px; position: relative; display: none; background: #010105; border-bottom: 25px solid #111; overflow: hidden; }
+        .moon { position: absolute; top: 40px; left: 50%; transform: translateX(-50%); width: 160px; height: 160px; border-radius: 50%; background: radial-gradient(circle, #ffcc00, #ff5e00, #8b0000); box-shadow: 0 0 60px rgba(255, 94, 0, 0.4); z-index: 1; }
         .city { position: absolute; bottom: 0; width: 200%; height: 350px; display: flex; align-items: flex-end; z-index: 2; animation: moveCity 18s linear infinite; }
         .building { width: 70px; background: #030308; margin-right: 5px; flex-shrink: 0; position: relative; border-top: 2px solid #1a1a2e; }
-        .win { position: absolute; width: 4px; height: 6px; background: #f1c40f; opacity: 0.4; box-shadow: 0 0 5px #f1c40f; }
+        .win { position: absolute; width: 4px; height: 6px; background: #f1c40f; opacity: 0.4; }
 
-        /* KARAKTER ZEUS */
-        #zeus { width: 45px; height: 75px; position: absolute; bottom: 0; left: 80px; z-index: 10; transition: bottom 0.1s; }
+        /* ZEUS CHARACTER */
+        #zeus { width: 45px; height: 75px; position: absolute; bottom: 0; left: 80px; z-index: 10; }
         .head { width: 18px; height: 18px; background: var(--gold); border-radius: 50%; position: absolute; top: 0; left: 13px; box-shadow: 0 0 10px var(--gold); }
         .body { width: 20px; height: 35px; background: #eee; position: absolute; top: 18px; left: 12px; border-radius: 4px; }
         .leg { width: 8px; height: 25px; background: var(--gold); position: absolute; bottom: 0; transform-origin: top; animation: run 0.4s infinite alternate; }
         .leg.l { left: 12px; } .leg.r { left: 24px; animation-delay: 0.2s; }
 
-        /* RINTANGAN BOLA (FIXED) */
-        .bolt { 
-            width: 40px; height: 40px; background: var(--neon); position: absolute; 
-            bottom: 0; border-radius: 50%; box-shadow: 0 0 20px var(--neon), inset 0 0 10px white; 
-            z-index: 15;
-        }
+        /* OBSTACLE */
+        .bolt { width: 35px; height: 35px; background: var(--neon); position: absolute; bottom: 10px; border-radius: 50%; box-shadow: 0 0 20px var(--neon), inset 0 0 10px white; z-index: 15; }
+
+        /* LOGIN OVERLAY */
+        #login-overlay { text-align: center; z-index: 500; background: rgba(0,0,0,0.85); padding: 40px; border-radius: 20px; border: 1px solid var(--gold); backdrop-filter: blur(10px); }
+        input { display: block; width: 280px; padding: 15px; margin: 10px auto; border-radius: 8px; border: 1px solid #333; background: #111; color: white; text-align: center; }
+        button { display: block; width: 280px; padding: 15px; margin: 10px auto; border-radius: 8px; border: none; background: var(--gold); font-weight: bold; cursor: pointer; text-transform: uppercase; }
 
         /* ANIMATIONS */
         @keyframes run { from { transform: rotate(-35deg); } to { transform: rotate(35deg); } }
         @keyframes moveCity { from { left: 0; } to { left: -100%; } }
         @keyframes jump { 0%, 100% { bottom: 0; } 50% { bottom: 200px; } }
         .jumping { animation: jump 0.6s cubic-bezier(0.2, 0.8, 0.2, 1); }
-
-        /* LOGIN & MISC */
-        #login-overlay { text-align: center; z-index: 500; background: rgba(0,0,0,0.85); padding: 40px; border-radius: 20px; border: 1px solid var(--gold); backdrop-filter: blur(10px); }
-        input, button { display: block; width: 280px; padding: 15px; margin: 10px auto; border-radius: 8px; border: none; font-weight: bold; font-size: 16px; }
-        #play-timer-ui { position: absolute; top: 20px; right: 20px; color: white; background: rgba(255,0,0,0.7); padding: 8px 15px; border-radius: 8px; display: none; z-index: 100; font-weight: bold; border: 1px solid white; }
     </style>
-    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@700&display=swap" rel="stylesheet">
 </head>
 <body>
 
     <div id="top-ui">
-        <div id="status-label" style="font-size: 11px; letter-spacing: 1px;">WEB STATUS</div>
+        <div id="status-label" style="font-size: 10px;">SESSION TIMER</div>
         <div id="timer">00:00</div>
     </div>
 
     <div id="leaderboard-screen">
         <div class="board-box">
-            <h1 style="color:var(--gold); margin:0; letter-spacing: 2px;">SESSION CHAMPIONS</h1>
-            <div id="leader-list" style="margin:20px 0; max-height:280px; overflow-y:auto; text-align:left;"></div>
-            <p style="font-size: 14px; opacity: 0.8;">Website Terbuka Kembali Dalam:</p>
-            <div id="timer-wait" style="font-size: 38px; font-weight: bold; color: white;">00:00</div>
+            <h2 style="color:var(--gold); margin:0;">SESSION CHAMPIONS</h2>
+            <div id="leader-list" style="margin:20px 0; max-height:250px; overflow-y:auto;"></div>
+            <p style="font-size: 14px;">Next Session In:</p>
+            <div id="timer-wait" style="font-size: 35px; font-weight: bold;">00:00</div>
         </div>
     </div>
 
     <div id="login-overlay">
-        <h1 style="color:var(--gold); margin-top:0; letter-spacing: 4px;">ZEUS METROPOLIS</h1>
+        <h1 style="color:var(--gold); margin-top:0; letter-spacing: 3px;">ZEUS METROPOLIS</h1>
         <input type="text" id="name" placeholder="NAMA PLAYER">
         <input type="text" id="ticket" placeholder="KODE TIKET">
-        <button onclick="auth()" style="background:var(--gold); cursor:pointer; text-transform: uppercase;">ENTER ARENA</button>
-        <p id="msg" style="color:#ff3366; font-size: 14px; height: 20px;"></p>
+        <button onclick="auth()">MASUK ARENA</button>
+        <p id="msg" style="color:#ff3366; font-size: 14px;"></p>
     </div>
 
     <div class="stage" id="arena" onclick="doJump()">
-        <div id="play-timer-ui">SISA WAKTU MAIN: <span id="pt-val">30:00</span></div>
         <div class="moon"></div>
         <div class="city" id="city-layer"></div>
         <div id="zeus">
             <div class="head"></div><div class="body"></div><div class="leg l"></div><div class="leg r"></div>
         </div>
-        <div id="score-box" style="position:absolute; top:20px; left:20px; font-size:40px; color:var(--gold); z-index:100; text-shadow: 0 0 15px rgba(241,196,15,0.5);">0</div>
+        <div id="score-box" style="position:absolute; top:20px; left:20px; font-size:40px; color:var(--gold); z-index:100; text-shadow: 0 0 10px rgba(0,0,0,0.5);">0</div>
     </div>
 
     <script>
-        const scriptURL = 'https://script.google.com/macros/s/AKfycbx5pMdqPvAwV1B83ny5LPxpEXItHLBa5aQFpnu2NW0BSddgGB6I8F8XqUWvMuszR38wFQ/exec'; 
-        let player = { name: '', ticket: '' };
+        const scriptURL = 'https://script.google.com/macros/s/AKfycbyT21qMxT_EWEKwIXv3gWIjbsbrs6OwMcLycLtJb5VrUsdOmL5fVgJniyh6tErTBlHGNA/exec'; 
+        let player = { name: '', ticket: '', ip: 'Mencari...' };
         let currentScore = 0, isLive = false, jumping = false;
-        let playMinutes = 30, playSeconds = 0;
 
-        // --- MANAJEMEN WAKTU WEBSITE (SIKLUS 5 MENIT) ---
-function cycleManager() {
-    const now = new Date();
-    const m = now.getMinutes();
-    const s = now.getSeconds();
-
-    // LOGIKA: Setiap 10 menit, 5 menit pertama BUKA, 5 menit kedua TUTUP
-    // Contoh: Buka (00-05), Tutup (05-10), Buka (10-15), dst.
-    const isWebOpen = Math.floor(m / 5) % 2 === 0;
-
-    if (!isWebOpen) {
-        // --- FASE TUTUP / LEADERBOARD ---
-        document.getElementById('leaderboard-screen').style.display = 'flex';
-        document.getElementById('status-label').innerText = "WEB CLOSED";
-        if(document.getElementById('leader-list').innerHTML === "") getLeaders();
-    } else {
-        // --- FASE BUKA / BERMAIN ---
-        document.getElementById('leaderboard-screen').style.display = 'none';
-        document.getElementById('status-label').innerText = "WEB OPEN";
-        document.getElementById('leader-list').innerHTML = ""; 
-    }
-
-    // HITUNG MUNDUR SISA WAKTU PER 5 MENIT
-    // Menghitung sisa menit menuju kelipatan 5 berikutnya
-    let sisaMenit = 4 - (m % 5);
-    let sisaDetik = 59 - s;
-
-    const timeStr = `${String(sisaMenit).padStart(2,'0')}:${String(sisaDetik).padStart(2,'0')}`;
-    document.getElementById('timer').innerText = timeStr;
-    document.getElementById('timer-wait').innerText = timeStr;
-}
-setInterval(cycleManager, 1000);
-
-        // --- MANAJEMEN WAKTU BERMAIN (30 MENIT) ---
-        function startPlayTimer() {
-            document.getElementById('play-timer-ui').style.display = 'block';
-            let pTimer = setInterval(() => {
-                if(!isLive) { clearInterval(pTimer); return; }
-                if (playSeconds === 0) {
-                    if (playMinutes === 0) {
-                        clearInterval(pTimer); stopGame("WAKTU BERMAIN HABIS!"); return;
-                    }
-                    playMinutes--; playSeconds = 59;
-                } else { playSeconds--; }
-                document.getElementById('pt-val').innerText = `${String(playMinutes).padStart(2,'0')}:${String(playSeconds).padStart(2,'0')}`;
-            }, 1000);
+        // --- AMBIL IP USER ---
+        async function fetchIP() {
+            try {
+                const res = await fetch('https://api.ipify.org?format=json');
+                const data = await res.json();
+                player.ip = data.ip;
+            } catch (e) { player.ip = "Unknown"; }
         }
+        fetchIP();
+
+        // --- LOGIKA SIKLUS 2 MENIT ---
+        function cycleManager() {
+            const now = new Date();
+            const m = now.getMinutes();
+            const s = now.getSeconds();
+
+            const isWebOpen = Math.floor(m / 2) % 2 === 0;
+
+            if (!isWebOpen) {
+                document.getElementById('leaderboard-screen').style.display = 'flex';
+                document.getElementById('status-label').innerText = "SESSION ENDED";
+                if(document.getElementById('leader-list').innerHTML === "") getLeaders();
+            } else {
+                document.getElementById('leaderboard-screen').style.display = 'none';
+                document.getElementById('status-label').innerText = "SESSION ACTIVE";
+                document.getElementById('leader-list').innerHTML = ""; 
+            }
+
+            let sisaMenit = 1 - (m % 2);
+            let sisaDetik = 59 - s;
+            const timeStr = `${String(sisaMenit).padStart(2,'0')}:${String(sisaDetik).padStart(2,'0')}`;
+            document.getElementById('timer').innerText = timeStr;
+            document.getElementById('timer-wait').innerText = timeStr;
+        }
+        setInterval(cycleManager, 1000);
 
         // --- VISUAL KOTA ---
         function initCity() {
@@ -149,9 +132,9 @@ setInterval(cycleManager, 1000);
             for(let i=0; i<40; i++) {
                 const b = document.createElement('div'); b.className = 'building';
                 b.style.height = (Math.random() * 150 + 150) + 'px';
-                for(let j=0; j<6; j++) {
+                for(let j=0; j<5; j++) {
                     const w = document.createElement('div'); w.className = 'win';
-                    w.style.top = (j * 25 + 20) + 'px'; w.style.left = (Math.random() * 40 + 10) + 'px';
+                    w.style.top = (j * 30 + 20) + 'px'; w.style.left = (Math.random() * 40 + 5) + 'px';
                     if(Math.random() > 0.4) b.appendChild(w);
                 }
                 layer.appendChild(b);
@@ -159,31 +142,25 @@ setInterval(cycleManager, 1000);
         }
         initCity();
 
-        // --- AUTH & GAME START ---
+        // --- GAMEPLAY FUNCTIONS ---
         async function auth() {
             const n = document.getElementById('name').value;
             const t = document.getElementById('ticket').value;
-            if(!n || !t) { alert("Isi Nama & Tiket!"); return; }
-            document.getElementById('msg').innerText = "VALIDATING TICKET...";
+            if(!n || !t) return;
+            document.getElementById('msg').innerText = "VALIDATING...";
+            await fetchIP();
+
             try {
                 const r = await fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "validate", ticket: t }) });
                 const res = await r.json();
                 if(res.status === "success") {
-                    player = { name: n, ticket: t };
+                    player.name = n; player.ticket = t;
                     document.getElementById('login-overlay').style.display = 'none';
                     document.getElementById('arena').style.display = 'block';
-                    isLive = true;
-                    startPlayTimer();
-                    spawnObs();
-                    // Hitung Skor
-                    let scoreInt = setInterval(() => { 
-                        if(isLive) { 
-                            currentScore++; 
-                            document.getElementById('score-box').innerText = currentScore; 
-                        } else { clearInterval(scoreInt); }
-                    }, 100);
+                    isLive = true; spawnObs();
+                    setInterval(() => { if(isLive) { currentScore++; document.getElementById('score-box').innerText = currentScore; } }, 100);
                 } else { document.getElementById('msg').innerText = res.msg; }
-            } catch(e) { document.getElementById('msg').innerText = "CONNECTION ERROR"; }
+            } catch(e) { document.getElementById('msg').innerText = "SERVER ERROR"; }
         }
 
         function doJump() {
@@ -192,58 +169,25 @@ setInterval(cycleManager, 1000);
             setTimeout(() => { document.getElementById('zeus').classList.remove('jumping'); jumping = false; }, 600);
         }
 
-        // --- PERBAIKAN BOLA (SPAWN OBS) ---
         function spawnObs() {
             if(!isLive) return;
-            
-            const b = document.createElement('div');
-            b.className = 'bolt';
-            b.style.right = '-60px'; // Mulai dari luar layar kanan
+            const b = document.createElement('div'); b.className = 'bolt'; b.style.right = '-50px';
             document.getElementById('arena').appendChild(b);
-
-            let p = -60;
-            let moveSpeed = 10 + (currentScore / 1000); // Kecepatan meningkat perlahan
-            
+            let p = -50;
             let move = setInterval(() => {
-                if(!isLive) { 
-                    clearInterval(move); 
-                    b.remove(); 
-                    return; 
-                }
-                
-                p += moveSpeed;
-                b.style.right = p + 'px';
-
-                // HITBOX DETECTION
+                if(!isLive) return clearInterval(move);
+                p += 14; b.style.right = p + 'px';
                 let z = document.getElementById('zeus').getBoundingClientRect();
                 let o = b.getBoundingClientRect();
-                
-                // Pengecekan tabrakan presisi
-                if (z.right > o.left + 10 && 
-                    z.left < o.right - 10 && 
-                    z.bottom > o.top + 10) {
-                    stopGame("CRASHED!");
-                    clearInterval(move);
+                if(z.right > o.left+15 && z.left < o.right-15 && z.bottom > o.top+15) {
+                    isLive = false;
+                    fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "save", nama: player.name, ticket: player.ticket, score: currentScore, ip: player.ip }) });
+                    alert("GAME OVER! SCORE: " + currentScore);
+                    location.reload();
                 }
-
-                // Hapus jika sudah lewat layar kiri
-                if(p > 1000) { 
-                    clearInterval(move); 
-                    b.remove(); 
-                }
-            }, 16); // ~60 FPS
-
-            // Jeda muncul rintangan berikutnya (Acak)
-            let nextSpawn = Math.random() * 1000 + 800;
-            setTimeout(spawnObs, nextSpawn);
-        }
-
-        function stopGame(msg) {
-            if(!isLive) return;
-            isLive = false;
-            fetch(scriptURL, { method: 'POST', body: JSON.stringify({ action: "save", nama: player.name, ticket: player.ticket, score: currentScore }) });
-            alert(msg + "\nYOUR SCORE: " + currentScore);
-            location.reload();
+                if(p > 1000) { clearInterval(move); b.remove(); }
+            }, 20);
+            setTimeout(spawnObs, Math.random() * 800 + 900);
         }
 
         async function getLeaders() {
@@ -252,15 +196,10 @@ setInterval(cycleManager, 1000);
                 const res = await r.json();
                 if(res.status === "success") {
                     let h = "";
-                    res.data.forEach((d, i) => { 
-                        let color = i === 0 ? 'var(--gold)' : 'white';
-                        h += `<div style="display:flex; justify-content:space-between; padding:12px; border-bottom:1px solid #333; color:${color}">
-                                <span>${i+1}. ${d.nama}</span><b>${d.skor}</b>
-                              </div>`; 
-                    });
-                    document.getElementById('leader-list').innerHTML = h || "<p style='text-align:center'>No data yet.</p>";
+                    res.data.forEach((d, i) => { h += `<div class="row"><span>${i+1}. ${d.nama}</span><b>${d.skor}</b></div>`; });
+                    document.getElementById('leader-list').innerHTML = h || "No data for this session.";
                 }
-            } catch(e) { console.error("Leaderboard Error"); }
+            } catch(e) { console.error("Leaderboard error"); }
         }
     </script>
 </body>
